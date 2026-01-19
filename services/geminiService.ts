@@ -1,7 +1,9 @@
-import { GoogleGenAI, Type, Schema } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { StudentProfile, Question, ActionType, ChatMessage } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Ensure the key exists or fallback to empty string to prevent runtime crash before valid check
+const apiKey = process.env.API_KEY || '';
+const ai = new GoogleGenAI({ apiKey });
 const MODEL_NAME = 'gemini-3-flash-preview'; 
 
 export class AgentService {
@@ -242,7 +244,6 @@ export class AgentService {
         contents: prompt,
         config: {
           systemInstruction: this.getSystemInstruction(profile),
-          maxOutputTokens: 300, 
         },
       });
       return response.text || "I didn't quite get that. Could you rephrase?";
