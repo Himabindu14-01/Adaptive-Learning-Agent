@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    // This allows process.env.API_KEY to work in client-side code for this specific demo architecture.
-    // In a production app, you would typically use import.meta.env.VITE_API_KEY
-    'process.env': process.env
+    // This safely embeds only the API_KEY env var into the client-side code during the build.
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
   }
 });
