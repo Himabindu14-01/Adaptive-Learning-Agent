@@ -1,7 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { StudentProfile, Question, ActionType, ChatMessage } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safely retrieve API key. If missing, we don't crash immediately, but methods will return graceful errors.
+const apiKey = process.env.API_KEY || '';
+const ai = new GoogleGenAI({ apiKey });
 const MODEL_NAME = 'gemini-3-flash-preview'; 
 
 export class AgentService {
@@ -31,6 +33,17 @@ export class AgentService {
 
   // 1. GENERATE ADAPTIVE QUIZ
   async generateQuiz(profile: StudentProfile, topic: string, level: 'Weak' | 'Average' | 'Strong'): Promise<Question[]> {
+    if (!apiKey) {
+      console.error("API Key is missing in environment variables.");
+      return [{
+        id: "err_no_key",
+        text: "System Error: API Key is missing. Please check Vercel settings.",
+        options: ["OK"],
+        correctOptionIndex: 0,
+        explanation: "The developer needs to add the API_KEY to environment variables."
+      }];
+    }
+
     const difficultyDesc = level === 'Weak' ? 'beginner (focus on basics)' 
                          : level === 'Average' ? 'intermediate (application based)' 
                          : 'advanced (critical thinking)';
@@ -102,6 +115,11 @@ export class AgentService {
 
   // 1.5 GENERATE DIAGNOSTIC ASSESSMENT
   async generateDiagnostic(profile: StudentProfile): Promise<Question[]> {
+    if (!apiKey) {
+      console.warn("Skipping diagnostic: No API Key.");
+      return [];
+    }
+
     const prompt = `
       Subject: ${profile.subject}
       Class: ${profile.classLevel}
@@ -173,6 +191,10 @@ export class AgentService {
 
   // 3. GENERATE REMEDIAL/PRACTICE CONTENT
   async generateActionContent(profile: StudentProfile, topic: string, action: ActionType): Promise<{title: string, description: string, content: string}> {
+    if (!apiKey) {
+      return { title: "Error", description: "API Key Missing", content: "Please configure your API_KEY environment variable." };
+    }
+
     const prompt = `
       Topic: "${topic}"
       Action Plan: ${action}
@@ -228,6 +250,8 @@ export class AgentService {
 
   // 4. CHAT TUTOR
   async chatWithTutor(profile: StudentProfile, history: ChatMessage[], message: string, topic: string): Promise<string> {
+    if (!apiKey) return "I cannot reply because the API Key is missing. Please ask your teacher to set it up.";
+
     const prompt = `
       Topic: ${topic}
       Student Question: "${message}"
