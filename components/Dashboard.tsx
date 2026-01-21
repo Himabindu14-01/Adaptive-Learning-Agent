@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StudentProfile, AiAction, ActionType, ChatMessage, AVAILABLE_SUBJECTS } from '../types';
 import { agentService } from '../services/geminiService';
-import { BookOpen, MessageCircle, Send, X, AlertTriangle, CheckCircle, ArrowRight, User, Bot, Loader2, Trophy, BarChart3 } from 'lucide-react';
+import { generateProjectReport } from '../services/pdfGenerator';
+import { BookOpen, MessageCircle, Send, X, AlertTriangle, CheckCircle, ArrowRight, User, Bot, Loader2, Trophy, BarChart3, FileText, Download } from 'lucide-react';
 
 interface Props {
   student: StudentProfile;
@@ -84,9 +85,18 @@ export const Dashboard: React.FC<Props> = ({ student, latestAction, isActionLoad
             <h1 className="text-2xl font-bold text-slate-800">Namaste, {student.name} 🙏</h1>
             <p className="text-slate-500">Class {student.classLevel} • {student.goal}</p>
           </div>
-          <button onClick={onNewTopic} className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold shadow hover:bg-indigo-700 transition flex items-center">
-            <BookOpen className="w-4 h-4 mr-2" /> Select New Topic
-          </button>
+          <div className="flex space-x-2">
+             <button 
+                onClick={generateProjectReport} 
+                className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-slate-50 transition flex items-center"
+                title="Download Project Report PDF"
+             >
+                <FileText className="w-4 h-4 mr-2 text-red-500" /> Report
+             </button>
+             <button onClick={onNewTopic} className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold shadow hover:bg-indigo-700 transition flex items-center">
+                <BookOpen className="w-4 h-4 mr-2" /> Select New Topic
+             </button>
+          </div>
         </div>
 
         {latestAction ? (

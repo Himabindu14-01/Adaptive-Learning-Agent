@@ -1,9 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { StudentProfile, Question, ActionType, ChatMessage } from "../types";
 
-// Ensure the key exists or fallback to empty string to prevent runtime crash before valid check
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 const MODEL_NAME = 'gemini-3-flash-preview'; 
 
 export class AgentService {
@@ -78,7 +76,7 @@ export class AgentService {
       const json = this.cleanAndParseJSON(response.text);
       
       if (!Array.isArray(json) || json.length === 0) {
-         throw new Error("Invalid quiz format received");
+         throw new Error("Invalid quiz format received or empty response");
       }
       
       return json.map((q: any, i: number) => ({
@@ -96,7 +94,7 @@ export class AgentService {
           text: "We couldn't load the questions right now. Please try reloading.", 
           options: ["Retry"], 
           correctOptionIndex: 0, 
-          explanation: "Network or parsing error." 
+          explanation: "Network or parsing error. Check console for details." 
         }
       ];
     }
